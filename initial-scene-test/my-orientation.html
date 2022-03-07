@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js ar - spatial test</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
+        <!-- <script src="my-location.js"></script> -->
+        <style>
+            #garden {
+                position: relative;
+                width : 200px;
+                height: 200px;
+                border: 5px solid #CCC;
+                border-radius: 10px;
+            }
+
+            .ball {
+                position: absolute;
+                top   : 90px;
+                left  : 90px;
+                width : 20px;
+                height: 20px;
+                background: green;
+                border-radius: 100%;
+            }
+        </style>
+        
+		<!-- <link type="text/css" rel="stylesheet" href="main.css"> -->
+	</head>
+	<body>
+        <div id="garden">
+            <div class="ball"></div>
+          </div>
+          
+          <pre class="output"></pre>
+    </body>
+    <script>
+        function startup() {
+            var el = document.getElementById("garden");
+            el.addEventListener("touchend", onTap, false);
+        }
+
+        var ball   = document.querySelector('.ball');
+        var garden = document.querySelector('.garden');
+        var output = document.querySelector('.output');
+
+        // var maxX = garden.clientWidth  - ball.clientWidth;
+        // var maxY = garden.clientHeight - ball.clientHeight;
+
+        function handleOrientation(event) {
+            var x = event.beta;  // In degree in the range [-180,180)
+            var y = event.gamma; // In degree in the range [-90,90)
+            var z = event.alpha;
+
+            output.textContent  = `beta : ${x}\n`;
+            output.textContent += `gamma: ${y}\n`;
+            output.textContent += `alpha: ${z}\n`;
+
+            // Because we don't want to have the device upside down
+            // We constrain the x value to the range [-90,90]
+            if (x >  90) { x =  90};
+            if (x < -90) { x = -90};
+
+            // To make computation easier we shift the range of
+            // x and y to [0,180]
+            x += 90;
+            y += 90;
+
+            // 10 is half the size of the ball
+            // It center the positioning point to the center of the ball
+            ball.style.top  = (maxY*y/180 - 10) + "px";
+            ball.style.left = (maxX*x/180 - 10) + "px";
+        }
+
+        document.addEventListener("DOMContentLoaded", startup);
+        function onTap() {
+            // feature detect
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                .then(permissionState => {
+                    if (permissionState === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                    }
+                })
+                .catch(console.error);
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+        }
+        // window.addEventListener('deviceorientation', handleOrientation);
+    </script>
+</html>    
