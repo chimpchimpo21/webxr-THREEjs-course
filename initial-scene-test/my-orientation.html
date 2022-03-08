@@ -6,6 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
         <!-- <script src="my-location.js"></script> -->
+        <script src="orient.js"></script>
         <style>
             #garden {
                 position: relative;
@@ -26,7 +27,6 @@
             }
         </style>
         
-		<!-- <link type="text/css" rel="stylesheet" href="main.css"> -->
 	</head>
 	<body>
         <div id="garden">
@@ -45,17 +45,20 @@
         var garden = document.querySelector('.garden');
         var output = document.querySelector('.output');
 
-        // var maxX = garden.clientWidth  - ball.clientWidth;
-        // var maxY = garden.clientHeight - ball.clientHeight;
-
         function handleOrientation(event) {
+
+            // var absolute = aos();
+
             var x = event.beta;  // In degree in the range [-180,180)
             var y = event.gamma; // In degree in the range [-90,90)
-            var z = event.alpha;
+            var z = event.alpha; // In degree in the range (0, 360)
+            var a = event.absolute; //boolean of whether orientation data is absolute or relative
 
             output.textContent  = `beta : ${x}\n`;
             output.textContent += `gamma: ${y}\n`;
             output.textContent += `alpha: ${z}\n`;
+            output.textContent += `absolute: ${a}\n`;
+            output.textContent += `aos: ${mat4}\n`;
 
             // Because we don't want to have the device upside down
             // We constrain the x value to the range [-90,90]
@@ -73,19 +76,26 @@
             ball.style.left = (maxX*x/180 - 10) + "px";
         }
 
+        function handleIosOrientation(event) {
+
+            var compassDir = event.webkitCompassHeading;
+            output.textContent = `compass heading: ${compassDir}\n`;
+
+        }
+
         document.addEventListener("DOMContentLoaded", startup);
         function onTap() {
-            // feature detect
+            
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission()
                 .then(permissionState => {
                     if (permissionState === 'granted') {
-                        window.addEventListener('deviceorientation', handleOrientation);
+                        window.addEventListener('deviceorientation', handleIosOrientation, true);
                     }
                 })
                 .catch(console.error);
             } else {
-                window.addEventListener('deviceorientation', handleOrientation);
+                window.addEventListener('deviceorientation', handleOrientation, true);
             }
         }
         // window.addEventListener('deviceorientation', handleOrientation);
