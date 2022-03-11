@@ -1,24 +1,27 @@
-var options = {
-    enableHighAccuracy: true,
-    timeout: 5000,
-    maximumAge: 0
-};
-
-function success(pos) {
-    var crd = pos.coords;
-    var x = 1;
+function test(){
+    
+    var options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+    };
+        
+    function success(pos) {
+        var crd = pos.coords;
+        var long = crd.longitude;
+        var lat = crd.latitude;
+        console.log(long, lat);
+    }
+        
+    function error(err) {
+        console.warn(`ERROR(${err.code}): ${err.message}`);
+    }
+        
+    navigator.geolocation.getCurrentPosition(success, error, [options]);
+    
 }
+   
 
-const info = document.getElementById("info");
+export{ test };
 
-window.addEventListener("deviceorientation", handleOrientation, true);
 
-function handleOrientation(event) {
-    var absolute = event.absolute;
-    var alpha = event.alpha;
-    var beta = event.beta;
-    var gamma = event.gamma;
-
-    console.log(`absolute: ${absolute}, alpha: ${alpha}, beta: ${beta}, gamma: ${gamma}`);
-    info.innerHTML = `absolute: ${absolute}, alpha: ${alpha}, beta: ${beta}, gamma: ${gamma}`;
-}
